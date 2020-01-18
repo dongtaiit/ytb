@@ -1,6 +1,6 @@
 const puppeteer = require('puppeteer');
 let Promise = require('bluebird')
-
+const videos = require('./videos.json')
 
 let delay = async(timeout)=>{
     return new Promise((resolve, reject) =>{
@@ -9,14 +9,14 @@ let delay = async(timeout)=>{
         }, timeout)
     })
 }
-(async () => {
+let playVideo = async (search) => {
   const browser = await puppeteer.launch({
     headless: false,
     slowMo: 5,
   });
   const page = await browser.newPage();
   await page.goto('https://youtube.com');
-  await page.type('#search', process.env.link);
+  await page.type('#search', search);
 //   await Promise.delay(5000)
 
   await page.click('button[id=search-icon-legacy]')
@@ -36,5 +36,12 @@ let delay = async(timeout)=>{
     }
   }
 //   await browser.close();
-})();
+}
 
+let start = () =>{
+  videos.map(search =>{
+    playVideo(search)
+  })
+}
+
+start()
