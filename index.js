@@ -9,12 +9,8 @@ let delay = async(timeout)=>{
         }, timeout)
     })
 }
-let playVideo = async (search) => {
-  const browser = await puppeteer.launch({
-    headless: false,
-    slowMo: 5,
-  });
-  const page = await browser.newPage();
+
+let doSearch = async (page, search) =>{
   await page.goto('https://youtube.com');
   await page.type('#search', search);
 //   await Promise.delay(5000)
@@ -26,6 +22,19 @@ let playVideo = async (search) => {
 
   let selector = "a#video-title"
   await (await page.$(selector)).click().then( () => delay(3000)) 
+}
+
+let playVideo = async (browser, search, replay) => {
+  const page = await browser.newPage();
+  
+  
+  await doSearch(page, search)
+
+  if(replay){
+    setInterval(function(){
+      doSearch(page, search + " replay")
+    }, replay * 60000)
+  }
 
   while (true) {
     let matrixValue = await page.evaluate(() => window.getComputedStyle(document.querySelector('.ytp-play-progress')).transform)
@@ -35,12 +44,16 @@ let playVideo = async (search) => {
       await (await page.$(replayBtn)).click()      
     }
   }
-//   await browser.close();
 }
 
-let start = () =>{
-  videos.map(search =>{
-    playVideo(search)
+let start = async () =>{
+  const browser = await puppeteer.launch({
+    headless: false,
+    slowMo: 5,
+  });
+
+  videos.map(obj =>{
+    playVideo(browser, obj.search, obj.replay)
   })
 }
 
