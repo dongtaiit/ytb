@@ -32,7 +32,7 @@ let playVideo = async (browser, search, replay) => {
 
   if(replay){
     setInterval(function(){
-      doSearch(page, search + " replay")
+      doSearch(page, search)
     }, replay * 60000)
   }
 
