@@ -1,6 +1,12 @@
 [
     {
         "search": "nhạc hay",
-        "replay": 1
+        "replay": [1],
+        "proxies": []
+    },
+    {
+        "search": "nhạc hay 2",
+        "replay": [2],
+        "proxies": []
     }
 ]
