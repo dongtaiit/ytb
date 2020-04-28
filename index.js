@@ -13,10 +13,15 @@ let delay = async(timeout)=>{
 let doSearch = async (page, search) =>{
   
   await page.goto('https://youtube.com');
-  await page.type('#search', search);
-//   await Promise.delay(5000)
+  let xpathSearch = "//input[@id='search']"
+  let xpathButton = '//*[@id="search-icon-legacy"]'
+  await page.waitForXPath(xpathSearch)
+  console.log('see search input')
+  const searchInputs = await page.$x(xpathSearch)
+  await searchInputs[0].type(search) 
 
-  await page.click('button[id=search-icon-legacy]')
+  const searchButtons = await page.$x(xpathButton)
+  await searchButtons[0].click() 
 
   await page.waitForXPath("//div[@id='container']/ytd-two-column-search-results-renderer[@class='style-scope ytd-search']/div[@id='primary']/ytd-section-list-renderer[@class='style-scope ytd-two-column-search-results-renderer']/div[@id='contents']")
     .then(()=> delay(1000))
@@ -26,7 +31,14 @@ let doSearch = async (page, search) =>{
   console.log('finish search action')
 }
 
-let playVideo = async (search, arrTimer, proxies, position) => {
+let playVideo = async (obj, position) => {
+  let search = obj.search
+  let arrTimer = obj.replay
+  let proxies = obj.proxies
+  let username = obj.username
+  let password = obj.password
+  let userAgents = obj.userAgents
+
   if(Array.isArray(arrTimer)){
     let index = 0
     while(true){
@@ -35,7 +47,7 @@ let playVideo = async (search, arrTimer, proxies, position) => {
       }
       let proxy = proxies[index]
       let timeout = arrTimer[index]
-
+      let userAgent = userAgents[index] || 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36'
       let args = [
         `--window-size=300,300`, 
         `--window-position=${position},0`,
@@ -51,6 +63,12 @@ let playVideo = async (search, arrTimer, proxies, position) => {
         args: args
       });
       let page = await browser.newPage();
+
+      await page.setUserAgent(userAgent);
+
+      // set the HTTP Basic Authentication credential
+      await page.authenticate({username, password});
+  
 
       await doSearch(page, search) 
 
@@ -75,7 +93,7 @@ let playVideo = async (search, arrTimer, proxies, position) => {
 let start = async () =>{
   videos.map((obj, idx) =>{
     let position = 500 * idx
-    playVideo(obj.search, obj.replay, obj.proxies, position)
+    playVideo(obj, position)
   })
 }
 
